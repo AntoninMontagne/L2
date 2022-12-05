@@ -1,17 +1,19 @@
-Projet de Livre dont vous êtes le héros
+Projet de Livre dont vous etes le heros
 
-Par :	Antonin Montagne
-Lou-Anne Gautherie
-Pape Maguette Diongue
-Oumoul Kiramy Bah
+Par :
+- Antonin Montagne
+- Lou-Anne Gautherie
+- Pape Maguette Diongue
+- Oumoul Kiramy Bah
 
-Prérequis :
-	Graphivtz disponible à l’adresse suivante : http://www.graphviz.org/
+Prerequis :
+	Graphivtz disponible a l'adresse suivante : http://www.graphviz.org/
 
-Déroulement :
-	L’application s’éxecute grâce à ANT.
-		- exécuter “ant init“ pour télécharger les librairies nécessaires (à faire une seul fois)
-		- exécuter “ant run“ pour démarrer le logiciel
-		- exécuter “ant delete“ pour supprimer les libraires
+Deroulement:
+
+L'application s'execute grace a ANT.
+- executez ant init pour telecharger les librairies necessaire
+- executez ant run pour demarrer le logiciel
+- executez ant delete pour supprimer les libraires
 	
  
