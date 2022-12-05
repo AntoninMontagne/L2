@@ -1,0 +1,112 @@
+package demo;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+import java.util.ArrayList;
+import java.util.List;
+
+public class Fenetre{
+	private JFrame f;
+	private JPanel pannelPrincipal;
+	private JPanel pannelTexte;
+	public Fenetre(){
+		f = new JFrame("ldvelh-lap");
+		pannelPrincipal = new JPanel();
+		pannelTexte = new JPanel();
+	}
+
+	public void afficherFenetre(String intro){
+		f.setSize(1500,1500);
+		pannelPrincipal.setLayout(new BorderLayout(20,0));
+
+		JTextArea testField1 = new JTextArea(intro);
+		testField1.setFont(new Font("Serif", Font.PLAIN, 13));
+
+		pannelTexte.setLayout(new BoxLayout(pannelTexte, BoxLayout.PAGE_AXIS));
+		JTextArea testField2 = new JTextArea();
+
+		pannelTexte.add(testField1);
+
+		JPanel pannelMenu = new JPanel();
+
+		List<String> myList = new ArrayList<>();
+		for(int i = 1; i < 351; i++){
+			myList.add("Sections " + i);
+		}
+
+		JList<String> listSections = new JList<String>(myList.toArray(new String[myList.size()]));
+		listSections.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		listSections.addMouseListener(new MouseAdapter() {
+	         public void mouseClicked(MouseEvent me) {
+	            if (me.getClickCount() == 2) {
+	               System.out.println("click");
+	            }
+	         }
+				});
+		JScrollPane scrollPane = new JScrollPane();
+		scrollPane.setViewportView(listSections);
+		scrollPane.setPreferredSize(new Dimension(250, 760));
+		listSections.setFont(new Font("Serif", Font.PLAIN, 15));
+
+		pannelMenu.add(scrollPane);
+		pannelPrincipal.add("West",pannelMenu);
+		pannelPrincipal.add("Center",pannelTexte);
+
+		f.getContentPane().add(pannelPrincipal);
+		f.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+		f.setVisible(true);
+	}
+
+	public void afficherParagraphe(Noeud unNoeud){
+		f.setSize(1500,1500);
+		pannelPrincipal.setLayout(new BoxLayout(pannelPrincipal, BoxLayout.LINE_AXIS));
+
+		String phrase = unNoeud.getTexte();
+
+
+		for(int i = 0; i < unNoeud.getChoiceTexte().size(); i++){
+			phrase += "\n" + "\n"+ unNoeud.getChoiceTexte().get(i);
+		}
+
+		JTextArea testField1 = new JTextArea(phrase);
+		testField1.setFont(new Font("Serif", Font.PLAIN, 20));
+
+		pannelTexte.setLayout(new BoxLayout(pannelTexte, BoxLayout.PAGE_AXIS));
+		JTextArea testField2 = new JTextArea();
+
+		pannelTexte.add(testField1);
+
+		pannelTexte.add(testField2);
+
+
+		JPanel pannelMenu = new JPanel();
+
+		List<String> myList = new ArrayList<>();
+		for(int i = 1; i < 351; i++){
+			myList.add("Sections " + i);
+		}
+
+		JList<String> listSections = new JList<String>(myList.toArray(new String[myList.size()]));
+		listSections.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		listSections.addMouseListener(new MouseAdapter() {
+	         public void mouseClicked(MouseEvent me) {
+	            if (me.getClickCount() == 2) {
+	               System.out.println("click");
+	            }
+	         }
+				});
+		JScrollPane scrollPane = new JScrollPane();
+		scrollPane.setViewportView(listSections);
+		scrollPane.setPreferredSize(new Dimension(250, 750));
+		listSections.setFont(new Font("Serif", Font.PLAIN, 15));
+
+		pannelMenu.add(scrollPane);
+		pannelPrincipal.add(pannelMenu);
+		pannelPrincipal.add(pannelTexte);
+
+		f.getContentPane().add(pannelPrincipal);
+		f.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+		f.setVisible(true);
+  }
+}

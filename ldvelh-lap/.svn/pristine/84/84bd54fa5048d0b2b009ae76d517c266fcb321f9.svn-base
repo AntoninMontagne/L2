@@ -1,0 +1,88 @@
+package boutons;
+
+import demo.*;
+
+import java.awt.event.*;
+import java.awt.Toolkit;
+import java.awt.*;
+
+import javax.swing.*;
+import org.json.simple.JSONObject;
+
+
+public class CreerModifierHistoire extends JButton{
+
+  protected DefaultListModel<String> modellisteHistoires;
+  protected JPanel pannelListHist;
+  protected JPanel pannelPrincipal;
+  protected JPanel pannelPremiersBouton;
+
+  protected int hauteur;
+  protected int longueur;
+  protected Dimension tailleMoniteur;
+
+  protected JTextArea zoneTexte;
+
+  protected JList<String> listeHistoires;
+
+  protected JSONObject sections;
+
+  protected Fenetre tmp_this;
+  protected Fenetre principal;
+
+  public CreerModifierHistoire(DefaultListModel<String> modellisteHistoires, JPanel pannelListHist, JPanel pannelPrincipal, JPanel pannelPremiersBouton, JSONObject sections, JList<String> listeHistoires, Fenetre tmp_this, Fenetre principal, JTextArea zoneTexte){
+    this.setText("Créer/modifier une histoire");
+    Dimension tailleMoniteur = Toolkit.getDefaultToolkit().getScreenSize();
+    longueur = tailleMoniteur.width;
+    hauteur = tailleMoniteur.height;
+    this.addMouseListener(new MouseAdapter(){
+			public void mouseClicked(MouseEvent e) {
+        zoneTexte.setEditable(true);
+				modellisteHistoires.addElement("Créer une nouvelle histoire");
+				pannelListHist.setVisible(true);
+				listeHistoires.addMouseListener(new MouseAdapter(){
+					public void mouseClicked(MouseEvent e) {
+						String selected = listeHistoires.getSelectedValue();
+						if(!selected.equals("Créer une nouvelle histoire")){
+							String chemin = "./files/" + selected;
+							ChargerHistoires hist = new ChargerHistoires(chemin);
+							hist.main(tmp_this);
+							pannelPremiersBouton.setVisible(false);
+							pannelPrincipal.remove(pannelPremiersBouton);
+							pannelListHist.setVisible(false);
+							pannelPrincipal.remove(pannelListHist);
+						}else{
+							JSONObject sections = new JSONObject();
+							JFrame frameSection = new JFrame("frameSection");
+							JPanel panelSection = new JPanel();
+							JButton ferme = new JButton("Cliquer pour valider!");
+							JTextArea texteSection = new JTextArea();
+							ferme.addMouseListener(new MouseAdapter(){
+								public void mouseClicked(MouseEvent e){
+									frameSection.dispose();
+									principal.setIntro(texteSection.getText());
+									Noeud n = new Noeud(sections,"1");
+									n.addNoeud();
+									n.ajoutTexte(" ");
+									n.ajoutChoix();
+									principal.afficherIntro(texteSection.getText());
+									pannelPremiersBouton.setVisible(false);
+									pannelPrincipal.remove(pannelPremiersBouton);
+									pannelListHist.setVisible(false);
+									pannelPrincipal.remove(pannelListHist);
+								}
+							});
+
+							panelSection.add(texteSection);
+							panelSection.add(ferme);
+							frameSection.setSize(longueur, hauteur);
+							frameSection.getContentPane().add(panelSection);
+							frameSection.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+							frameSection.setVisible(true);
+						}
+					}
+				});
+			}
+		});
+  }
+}

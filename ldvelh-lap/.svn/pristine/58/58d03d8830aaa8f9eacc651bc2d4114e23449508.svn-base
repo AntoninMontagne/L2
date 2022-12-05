@@ -1,0 +1,441 @@
+package demo;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+import java.util.ArrayList;
+import java.util.List;
+import org.json.simple.JSONObject;
+import java.awt.Toolkit;
+import java.util.Map;
+import java.util.HashMap;
+import java.io.*;
+import org.json.simple.*;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+
+public class Fenetre{
+	//Creation du frame
+	private JFrame f;
+	//Creation du panel texte, bouton et principal
+	private JPanel pannelPrincipal;
+	private JPanel pannelTexte;
+	//Creation zone texte de l'intro
+	private JTextArea testField1;
+	//Creation des sections
+	protected JSONObject sections;
+	//Creation des pannels
+	private JPanel pannelBoutonDebut;
+	private JPanel pannelMenu;
+	//Creation variable pour la taille de l'écran
+	private int hauteur;
+	private int longueur;
+	private Dimension tailleMoniteur;
+	//Creation des boutons
+	private JButton plus;
+	private JButton moins;
+	private JButton sauvegarder;
+	protected JButton modificationTexte;
+
+	protected String texteIntroduction;
+
+	protected HashMap <String, HashMap<String, String>> dicoSections;
+
+	protected DefaultListModel<String> modelSections;
+
+	protected HashMap<Integer, String> dicoTexteSections;
+
+	public Fenetre(){
+		//Nom de la fenêtre : "ldvelh-lap"
+		f = new JFrame("ldvelh-lap");
+		//Initialisation du panel principal
+		pannelPrincipal = new JPanel();
+		pannelPrincipal.setLayout(new BorderLayout(20,0));
+		//Initialisation du panel texte
+		pannelTexte = new JPanel();
+		//Initialisation du panel menu
+		pannelMenu = new JPanel();
+		//Initialisation de la zone de texte de l'intro
+		testField1 = new JTextArea();
+		//Initialisation du panel des boutons
+		pannelBoutonDebut = new JPanel();
+		//Initialisation des boutons
+		plus = new JButton ("plus");
+		moins = new JButton ("moins");
+		sauvegarder = new JButton ("sauvegarder");
+		modificationTexte = new JButton ("modification du texte");
+		//Récuperer la dimension de l'écran
+		Dimension tailleMoniteur = Toolkit.getDefaultToolkit().getScreenSize();
+		longueur = tailleMoniteur.width;
+		hauteur = tailleMoniteur.height;
+    //Régler la taille de JFrame à 2/3 la taille de l'écran
+		f.setSize(longueur, hauteur);
+		dicoTexteSections = new HashMap<>();
+	}
+
+	public void afficherFenetre1(){
+		Dimension tailleMoniteur = Toolkit.getDefaultToolkit().getScreenSize();
+		int longueur = tailleMoniteur.width;
+		int hauteur = tailleMoniteur.height;
+    //Régler la taille de JFrame à 2/3 la taille de l'écran
+		f.setSize(longueur, hauteur);
+
+		dicoSections = new HashMap<String, HashMap<String, String>>();
+
+		pannelPrincipal.setLayout(new BorderLayout(20,0));
+		JButton boutonCreerHistoire = new JButton("Créer une histoire");
+		JButton boutonChargerHistoire = new JButton("Charger l'histoire fotw");
+
+		JPanel pannelPremiersBouton = new JPanel();
+		JPanel pannelListHist = new JPanel();
+		pannelPremiersBouton.add(boutonCreerHistoire);
+		pannelPremiersBouton.add(boutonChargerHistoire);
+
+		pannelPrincipal.add("North",pannelPremiersBouton);
+
+		//AJOUT DE LA FONCTION QUI AFFICHE LA LISTE DES BOUTONS ET SUPPRESSION DU CLICKCOUNT = 2
+		File dir = new File("./files/");
+		File[] listeFichiers = dir.listFiles();
+		/*List<String> listeHist = new ArrayList<>();
+		for(File item : listeFichiers){
+			listeHist.add(String.format(item.getName()));
+		}
+		JList<String> listeHistoires = new JList<String>(listeHist.toArray(new String[listeHist.size()]));
+		listeHistoires.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		listeHistoires.setFont(new Font("Serif", Font.PLAIN, 15));*/
+
+		DefaultListModel<String> modellisteHistoires = new DefaultListModel<>();
+		for(File item : listeFichiers){
+			modellisteHistoires.addElement(String.format(item.getName()));
+		}
+		JList<String> listeHistoires = new JList<String>(modellisteHistoires);
+		listeHistoires.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		listeHistoires.setFont(new Font("Serif", Font.PLAIN, 15));
+
+		pannelListHist.setLayout(new BoxLayout(pannelListHist, BoxLayout.PAGE_AXIS));
+		pannelListHist.add(listeHistoires);
+		pannelListHist.setVisible(false);
+
+		pannelPrincipal.add("Center",pannelListHist);
+
+		Fenetre tmp_this = this;
+		boutonCreerHistoire.addMouseListener(new MouseAdapter(){
+			public void mouseClicked(MouseEvent e) {
+				modellisteHistoires.addElement("Créer une nouvelle histoire");
+				pannelListHist.setVisible(true);
+				listeHistoires.addMouseListener(new MouseAdapter(){
+					public void mouseClicked(MouseEvent e) {
+						String selected = listeHistoires.getSelectedValue();
+						if(!selected.equals("Créer une nouvelle histoire")){
+							String chemin = "./files/" + selected;
+							ChargerHistoires hist = new ChargerHistoires(chemin);
+							hist.main(tmp_this);
+							pannelPremiersBouton.setVisible(false);
+							pannelPrincipal.remove(pannelPremiersBouton);
+							pannelListHist.setVisible(false);
+							pannelPrincipal.remove(pannelListHist);
+						}else{
+							sections = new JSONObject();
+							JFrame frameSection = new JFrame("frameSection");
+							JPanel panelSection = new JPanel();
+							JButton ferme = new JButton("Cliquer pour valider!");
+							JTextArea texteSection = new JTextArea();
+							ferme.addMouseListener(new MouseAdapter(){
+								public void mouseClicked(MouseEvent e){
+									frameSection.dispose();
+									setIntro(texteSection.getText());
+									Noeud n = new Noeud(sections,"1");
+									n.addNoeud();
+									n.ajoutTexte(" ");
+									n.ajoutChoix();
+									afficherIntro(texteSection.getText());
+									pannelPremiersBouton.setVisible(false);
+									pannelPrincipal.remove(pannelPremiersBouton);
+									pannelListHist.setVisible(false);
+									pannelPrincipal.remove(pannelListHist);
+								}
+							});
+
+							panelSection.add(texteSection);
+							panelSection.add(ferme);
+							frameSection.setSize(longueur, hauteur);
+							frameSection.getContentPane().add(panelSection);
+							frameSection.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+							frameSection.setVisible(true);
+						}
+					}
+				});
+			}
+		});
+
+		boutonChargerHistoire.addMouseListener(new MouseAdapter(){
+			public void mouseClicked(MouseEvent e) {
+				pannelListHist.setVisible(true);
+				listeHistoires.addMouseListener(new MouseAdapter(){
+					public void mouseClicked(MouseEvent e) {
+						String selected = listeHistoires.getSelectedValue();
+						String chemin = "./files/" + selected;
+						ChargerHistoires hist = new ChargerHistoires(chemin);
+						hist.main(tmp_this);
+						pannelPremiersBouton.setVisible(false);
+						pannelPrincipal.remove(pannelPremiersBouton);
+						pannelListHist.setVisible(false);
+						pannelPrincipal.remove(pannelListHist);
+					}
+				});
+			}
+		});
+		f.getContentPane().add(pannelPrincipal);
+		f.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+		f.setVisible(true);
+	}
+
+	public void afficherIntro(String intro){
+		texteIntroduction = intro;
+		System.out.println("il y a : " + pannelPrincipal.getComponentCount());
+		if(pannelPrincipal.getComponentCount() == 2){
+			testField1.setText(intro);
+			testField1.setFont(new Font("Serif", Font.PLAIN, 13));
+			//testField1.setEditable(false);
+
+			pannelTexte.setLayout(new BoxLayout(pannelTexte, BoxLayout.PAGE_AXIS));
+			pannelTexte.add(testField1);
+
+			JButton boutonDebut = new JButton("Commencer l'histoire");
+			pannelBoutonDebut.add(boutonDebut);
+
+			//Action du bouton "Commencer l'histoire"
+			//Le clique du bouton affiche la première section et le bouton disparait
+			boutonDebut.addMouseListener(new MouseAdapter(){
+				public void mouseClicked(MouseEvent e) {
+					if (e.getClickCount() == 1) {
+						Noeud noeud1 = new Noeud(sections,"1");
+						pannelBoutonDebut.remove(boutonDebut);
+						afficherParagraphe(noeud1);
+					}
+				}
+			});
+
+			modelSections = new DefaultListModel<>();
+			for(int i = 1; i <= sections.size(); i++){
+				modelSections.addElement("Sections " + i);
+				HashMap<String,String> a = new HashMap<>();
+				dicoSections.put("Sections " + i, a);
+				String b = "";
+				dicoTexteSections.put(i, b);
+			}
+			JList<String> listSections = new JList<String>(modelSections);
+			listSections.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+			listSections.addMouseListener(new MouseAdapter(){
+		         public void mouseClicked(MouseEvent e) {
+		            if (e.getClickCount() == 2) {
+									 int index = listSections.getSelectedIndex() + 1;
+									 Noeud noeud1 = new Noeud(sections,Integer.toString(index));
+		               afficherParagraphe(noeud1);
+		            }
+		         }
+					});
+			JScrollPane scrollPane = new JScrollPane();
+			double hauteur10 = hauteur*0.85;
+			scrollPane.setPreferredSize(new Dimension(250, (int)hauteur10));
+			scrollPane.setViewportView(listSections);
+			listSections.setFont(new Font("Serif", Font.PLAIN, 15));
+
+			pannelMenu.add(scrollPane);
+			pannelPrincipal.add("West",pannelMenu);
+			pannelPrincipal.add("Center",pannelTexte);
+			pannelPrincipal.add("South",pannelBoutonDebut);
+		}else{
+			System.out.println("aeadez");
+			pannelBoutonDebut.remove(pannelBoutonDebut.getComponent(0));
+			pannelBoutonDebut.remove(pannelBoutonDebut.getComponent(0));
+			pannelBoutonDebut.remove(pannelBoutonDebut.getComponent(0));
+			JButton boutonDebut = new JButton("Commencer l'histoire");
+			pannelBoutonDebut.add(boutonDebut);
+			//Action du bouton "Commencer l'histoire"
+			//Le clique du bouton affiche la première section et le bouton disparait
+			boutonDebut.addMouseListener(new MouseAdapter(){
+				public void mouseClicked(MouseEvent e) {
+					if (e.getClickCount() == 1) {
+						Noeud noeud1 = new Noeud(sections,"1");
+						pannelBoutonDebut.remove(boutonDebut);
+						afficherParagraphe(noeud1);
+					}
+				}
+			});
+			pannelBoutonDebut.add(boutonDebut);
+			pannelMenu.setVisible(true);
+			pannelTexte.setVisible(true);
+			pannelBoutonDebut.setVisible(true);
+			testField1.setText(intro);
+			testField1.setFont(new Font("Serif", Font.PLAIN, 13));
+		}
+		pannelMenu.setVisible(true);
+		pannelTexte.setVisible(true);
+		pannelBoutonDebut.setVisible(true);
+	}
+
+	public void afficherParagraphe(Noeud unNoeud){
+		String phrase;
+		if(dicoTexteSections.get(Integer.valueOf(unNoeud.getNumber())).equals("")){
+			phrase = unNoeud.getTexte();
+			dicoTexteSections.put(Integer.valueOf(unNoeud.getNumber()), phrase);
+		}else{
+			phrase = dicoTexteSections.get(Integer.valueOf(unNoeud.getNumber()));
+		}
+
+		testField1.setText(phrase);
+		//testField1.setFont(new Font("Serif", Font.PLAIN, 20));
+		List<String> myList2 = new ArrayList<>();
+		//HashMap<String,String> mapNoeud = new HashMap<>(unNoeud.choices());
+		HashMap<String,String> mapNoeud = new HashMap<>(unNoeud.choices());
+		System.out.println(mapNoeud);
+		DefaultListModel<String> model = new DefaultListModel<>();
+		if(dicoSections.get("Sections " + unNoeud.number).isEmpty()){
+			for(String str : mapNoeud.keySet()){
+				model.addElement(mapNoeud.get(str));
+			}
+			dicoSections.put("Sections " + unNoeud.number, mapNoeud);
+		}else{
+			for(String str : dicoSections.get("Sections " + unNoeud.number).keySet()){
+				model.addElement(dicoSections.get("Sections " + unNoeud.number).get(str));
+			}
+		}
+		//JList<String> listSections2 = new JList<String>(myList2.toArray(new String[myList2.size()]));
+		JList<String> listSections2 = new JList<String>(model);
+		listSections2.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		listSections2.addMouseListener(new MouseAdapter(){
+					 public void mouseClicked(MouseEvent e) {
+							if (e.getClickCount() == 2) {
+								 String selected = listSections2.getSelectedValue();
+								 for(Map.Entry map: mapNoeud.entrySet()){
+						 			if(map.getValue().equals(selected)){
+										String index = map.getKey().toString();
+										Noeud noeud1 = new Noeud(sections,index);
+										afficherParagraphe(noeud1);
+									}
+						 		}
+								 System.out.println(selected);
+							}
+					 }
+				});
+		JScrollPane scrollPane2 = new JScrollPane();
+		scrollPane2.setViewportView(listSections2);
+		listSections2.setFont(new Font("Serif", Font.PLAIN, 15));
+		System.out.println(pannelTexte.getComponentCount());
+		if(pannelTexte.getComponentCount() == 2){
+			pannelTexte.remove(pannelTexte.getComponent(1));
+			pannelTexte.add(scrollPane2);
+		}else{
+			pannelTexte.add(scrollPane2);
+		}
+		if(pannelBoutonDebut.getComponentCount() == 0){
+				System.out.println("aaa");
+				JButton boutonDebut2 = new JButton("Accueil");
+				pannelBoutonDebut.add(boutonDebut2);
+				boutonDebut2.addMouseListener(new MouseAdapter(){
+					public void mouseClicked(MouseEvent e) {
+						pannelPrincipal.removeAll();
+						pannelMenu.removeAll();
+						pannelBoutonDebut.removeAll();
+						pannelTexte.removeAll();
+						afficherFenetre1();
+					}
+				});
+			pannelBoutonDebut.add(plus);
+			pannelBoutonDebut.add(moins);
+			pannelBoutonDebut.add(modificationTexte);
+			pannelBoutonDebut.add(sauvegarder);
+		}if(modificationTexte.getMouseListeners() != null)
+			modificationTexte.removeMouseListener(moins.getMouseListeners()[0]);
+		modificationTexte.addMouseListener(new MouseAdapter(){
+			public void mouseClicked(MouseEvent e) {
+					majDicoTexteSections(testField1, Integer.valueOf(unNoeud.getNumber()));
+				}
+			});
+		if(plus.getMouseListeners() != null){
+			plus.removeMouseListener(plus.getMouseListeners()[0]);
+		}
+		plus.addMouseListener(new MouseAdapter(){
+			public void mouseClicked(MouseEvent e) {
+					String getMessage = JOptionPane.showInputDialog(f, "Saisissez le texte de votre choix et mettez le numéro de la section à la fin sans point");
+					String mot = getMessage.substring(getMessage.lastIndexOf(" ")+1, getMessage.length());
+					System.out.println(pannelTexte.getComponentCount());
+					if(!modelSections.contains("Sections " + mot)){
+						modelSections.addElement("Sections " + mot);
+						HashMap<String,String> a = new HashMap<>();
+						dicoSections.put("Sections " + mot, a);
+						JFrame frameSection = new JFrame("frameSection");
+						JPanel panelSection = new JPanel();
+						JButton ferme = new JButton("Cliquer pour valider!");
+						JTextArea texteSection = new JTextArea();
+						ferme.addMouseListener(new MouseAdapter(){
+							public void mouseClicked(MouseEvent e){
+								frameSection.dispose();
+								Noeud N2 = new Noeud(sections,mot);
+								N2.addNoeud();
+								N2.ajoutTexte(texteSection.getText());
+								dicoTexteSections.put(Integer.valueOf(N2.getNumber()),texteSection.getText());
+								N2.ajoutChoix();
+							}
+						});
+
+						panelSection.add(texteSection);
+						panelSection.add(ferme);
+						frameSection.setSize(longueur, hauteur);
+						frameSection.getContentPane().add(panelSection);
+						frameSection.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+						frameSection.setVisible(true);
+					}
+					model.addElement(getMessage);
+					mapNoeud.put(mot, getMessage);
+					dicoSections.put("Sections " + unNoeud.number, mapNoeud);
+				}
+			});
+			if(moins.getMouseListeners() != null){
+				moins.removeMouseListener(moins.getMouseListeners()[0]);
+			}
+			moins.addMouseListener(new MouseAdapter(){
+				public void mouseClicked(MouseEvent e) {
+						String removeChoice = listSections2.getSelectedValue();
+						System.out.println(listSections2.getSelectedIndex());
+						model.remove(listSections2.getSelectedIndex());
+						for(String str: mapNoeud.keySet()){
+						 if(mapNoeud.get(str).equals(removeChoice)){
+							 mapNoeud.remove(str);
+						 }
+					 }
+					 System.out.println(mapNoeud);
+					 dicoSections.put("Sections " + unNoeud.number, mapNoeud);
+					}
+				});
+				if(sauvegarder.getMouseListeners() != null){
+					sauvegarder.removeMouseListener(sauvegarder.getMouseListeners()[0]);
+				}
+				sauvegarder.addMouseListener(new MouseAdapter(){
+					public void mouseClicked(MouseEvent e) {
+						String nomFichier = JOptionPane.showInputDialog(f, "Saisissez le nom de votre histoire");
+						for(int i = 1; i <= sections.size(); i++){
+							Noeud noeud = new Noeud(sections,Integer.valueOf(i).toString());
+							if(dicoTexteSections.get(i).isEmpty()){
+								dicoTexteSections.put(Integer.valueOf(i),noeud.getTexte());
+							}
+							if(dicoSections.get("Sections " + i).isEmpty()){
+								HashMap<String,String> mapNoeud = new HashMap<>(noeud.choices());
+								dicoSections.put("Sections " + noeud.number, mapNoeud);
+							}
+						}
+						System.out.println(dicoSections.get("Sections 1"));
+						CreationJson edition = new CreationJson();
+						edition.creationJson(texteIntroduction, dicoSections, dicoTexteSections ,nomFichier);
+					}
+				});
+			pannelBoutonDebut.repaint();
+  }
+
+	public void majDicoTexteSections(JTextArea texte, Integer numNoeud){
+		dicoTexteSections.put(numNoeud, texte.getText());
+	}
+
+	public void setIntro(String intro){texteIntroduction = intro;}
+}

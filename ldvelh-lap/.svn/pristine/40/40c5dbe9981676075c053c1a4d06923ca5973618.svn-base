@@ -1,0 +1,28 @@
+package boutons;
+
+import javax.swing.*;
+import java.awt.event.*;
+import demo.*;
+import noeud.*;
+import org.json.simple.JSONObject;
+
+public class Commencer extends JButton{
+
+protected JPanel pannelBoutonDebut;
+protected JSONObject sections;
+protected Fenetre principal;
+
+  public Commencer(JPanel pannelBoutonDebut, JSONObject sections, Fenetre principal){
+    this.setText("commencer l'histoire");
+    this.addMouseListener(new MouseAdapter(){
+      public void mouseClicked(MouseEvent e) {
+        if (e.getClickCount() == 1) {
+          Noeud noeud1 = new Noeud(sections,"1");
+          pannelBoutonDebut.remove(pannelBoutonDebut.getComponent(0));
+          principal.afficherParagraphe(noeud1);
+        }
+      }
+    });
+  }
+
+}

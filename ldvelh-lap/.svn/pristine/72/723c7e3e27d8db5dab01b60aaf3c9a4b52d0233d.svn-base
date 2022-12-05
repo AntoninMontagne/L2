@@ -1,0 +1,52 @@
+package demo;
+
+import boutons.*;
+import noeud.*;
+import java.awt.event.*;
+import java.awt.Toolkit;
+import java.awt.*;
+
+import javax.swing.*;
+import org.json.simple.JSONObject;
+
+public class CreerHistoire{
+
+  protected Fenetre principal;
+
+  protected JPanel pannelListHist;
+  protected JPanel pannelPrincipal;
+  protected JPanel pannelPremiersBouton;
+
+  protected JSONObject sections;
+
+  public CreerHistoire(Fenetre principal, JPanel pannelListHist, JPanel pannelPrincipal, JPanel pannelPremiersBouton, JSONObject sections){
+    JFrame frameSection = new JFrame("frameSection");
+    JPanel panelSection = new JPanel();
+    JButton ferme = new JButton("Cliquer pour valider!");
+    JTextArea texteSection = new JTextArea();
+    ferme.addMouseListener(new MouseAdapter(){
+      public void mouseClicked(MouseEvent e){
+        frameSection.dispose();
+        principal.setIntro(texteSection.getText());
+        Noeud n = new Noeud(sections,"1");
+        n.addNoeud();
+        n.ajoutTexte(" ");
+        n.ajoutChoix();
+        principal.setSections(sections);
+        principal.afficherIntro(texteSection.getText());
+        pannelPremiersBouton.setVisible(false);
+        pannelPrincipal.remove(pannelPremiersBouton);
+        pannelListHist.setVisible(false);
+        pannelPrincipal.remove(pannelListHist);
+      }
+    });
+
+    panelSection.add(texteSection);
+    panelSection.add(ferme);
+    frameSection.setSize(Toolkit.getDefaultToolkit().getScreenSize().width, Toolkit.getDefaultToolkit().getScreenSize().height);
+    frameSection.getContentPane().add(panelSection);
+    frameSection.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+    frameSection.setVisible(true);
+  }
+
+}
