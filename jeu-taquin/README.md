@@ -1,1 +1,1 @@
-Développement d'un jeux de tquin en java
+Développement d'un jeux de taquin en java
